@@ -26,12 +26,13 @@
           <article class="panel"><h3>카테고리 지출</h3><div id="categorySummary"></div></article>
           <article class="panel"><h3>비싼 항목 상위 5개</h3><div id="topExpensive"></div></article>
         </div>
-        <article class="panel warning-panel"><h3>해지 후보</h3><p>사용 빈도와 만족도가 낮은 항목입니다. 해지를 검토해 보세요.</p><div id="cancelCandidates"></div></article>
+        <article class="panel warning-panel"><h3>해지 후보</h3><p>필수 지출이 아닌 활성 항목입니다. 절약 가능성을 검토해 보세요.</p><div id="cancelCandidates"></div></article>
       </section>
 
       <section id="expenses" class="view" aria-labelledby="expensesTitle">
         <div class="section-title"><h2 id="expensesTitle">고정비 목록</h2><button id="addExpenseBtn" class="primary" type="button">추가하기</button></div>
-        <div class="filters panel">
+        <div id="expenseFilters" class="filters panel">
+          <button id="filterToggle" class="filter-toggle" type="button"><span>검색 조건</span><small id="filterSummary">전체 표시</small></button>
           <label>검색<input id="searchInput" type="search" placeholder="이름 또는 메모 검색"></label>
           <label>카테고리<select id="categoryFilter"></select></label>
           <label>상태<select id="statusFilter"><option value="all">전체 상태</option><option value="active">활성</option><option value="paused">일시정지</option><option value="canceled">해지</option></select></label>
@@ -49,7 +50,7 @@
       <section id="savings" class="view" aria-labelledby="savingsTitle">
         <div class="section-title"><h2 id="savingsTitle">절약 시뮬레이터</h2></div>
         <div class="summary-grid compact" id="savingsSummary"></div>
-        <div class="quick-actions panel"><button data-select="unused">미사용 선택</button><button data-select="low">낮은 만족도 선택</button><button data-select="nonessential">비필수 선택</button><button data-select="clear">선택 해제</button></div>
+        <div class="quick-actions panel"><button data-select="nonessential">비필수 선택</button><button data-select="clear">선택 해제</button></div>
         <div id="savingsList" class="card-list"></div>
         <button id="cancelSelectedBtn" class="danger full" type="button">선택 항목 해지 처리</button>
       </section>
@@ -70,11 +71,10 @@
   </div>
 
   <dialog id="expenseDialog"><form id="expenseForm" method="dialog"><div class="modal-head"><h2 id="formTitle">고정비 추가</h2><button type="button" class="ghost close-dialog">✕</button></div><input type="hidden" id="expenseId"><div class="form-grid">
-    <label>이름 *<input id="name" required placeholder="예: Netflix"></label><label>금액 *<input id="amount" required type="number" min="1" step="0.01" placeholder="12000"></label>
+    <label>이름 *<input id="name" required placeholder="예: Netflix"></label><label>금액 *<input id="amount" required inputmode="decimal" placeholder="12,000"></label>
     <label>청구 주기<select id="billingCycle"></select></label><label id="customCycleWrap" class="hidden">사용자 지정 개월 수<input id="customCycleMonths" type="number" min="1" step="1" value="1"></label>
-    <label>카테고리<select id="category"></select></label><label>결제일<input id="paymentDay" type="number" min="1" max="31" value="1"></label>
+    <label>카테고리<select id="category"></select></label><label>결제일<input id="paymentDay" type="number" min="1" max="31" step="1" value="1"></label>
     <label>시작일<input id="startDate" type="date"></label><label>상태<select id="status"><option value="active">활성</option><option value="paused">일시정지</option><option value="canceled">해지</option></select></label>
-    <label>사용 수준<select id="usageLevel"><option value="high">높음</option><option value="medium">보통</option><option value="low">낮음</option><option value="unused">미사용</option></select></label><label>만족도<select id="satisfaction"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></label>
     <label class="switch-row wide">필수 지출 <input id="isEssential" type="checkbox"></label><label class="wide">메모<textarea id="memo" rows="3" placeholder="계정, 혜택, 해지 이유 등을 적어두세요"></textarea></label>
   </div><menu><button type="button" class="secondary close-dialog">취소</button><button class="primary" value="default">저장</button></menu></form></dialog>
   <dialog id="confirmDialog"><div class="modal-head"><h2 id="confirmTitle">확인</h2></div><p id="confirmMessage"></p><menu><button id="confirmCancel" class="secondary">취소</button><button id="confirmOk" class="danger">확인</button></menu></dialog>

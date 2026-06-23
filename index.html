@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2563eb">
+  <title>고정비 누수 탐지기</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">구독·고정비 관리</p>
+        <h1>고정비 누수 탐지기</h1>
+      </div>
+      <button class="icon-button" id="quickAddBtn" type="button" aria-label="고정비 추가">＋</button>
+    </header>
+
+    <main>
+      <section id="dashboard" class="view active" aria-labelledby="dashboardTitle">
+        <div class="section-title"><h2 id="dashboardTitle">대시보드</h2><button class="secondary small sample-empty-btn" type="button">샘플 데이터 추가</button></div>
+        <div id="summaryCards" class="summary-grid"></div>
+        <div class="two-column">
+          <article class="panel"><h3>카테고리 지출</h3><div id="categorySummary"></div></article>
+          <article class="panel"><h3>비싼 항목 상위 5개</h3><div id="topExpensive"></div></article>
+        </div>
+        <article class="panel warning-panel"><h3>해지 후보</h3><p>사용 빈도와 만족도가 낮은 항목입니다. 해지를 검토해 보세요.</p><div id="cancelCandidates"></div></article>
+      </section>
+
+      <section id="expenses" class="view" aria-labelledby="expensesTitle">
+        <div class="section-title"><h2 id="expensesTitle">고정비 목록</h2><button id="addExpenseBtn" class="primary" type="button">추가하기</button></div>
+        <div class="filters panel">
+          <label>검색<input id="searchInput" type="search" placeholder="이름 또는 메모 검색"></label>
+          <label>카테고리<select id="categoryFilter"></select></label>
+          <label>상태<select id="statusFilter"><option value="all">전체 상태</option><option value="active">활성</option><option value="paused">일시정지</option><option value="canceled">해지</option></select></label>
+          <label>정렬<select id="sortSelect"><option value="highest">높은 월 비용</option><option value="lowest">낮은 월 비용</option><option value="nearest">가까운 결제일</option><option value="newest">최신순</option><option value="name">이름순</option></select></label>
+        </div>
+        <div id="expenseList" class="card-list"></div>
+      </section>
+
+      <section id="calendar" class="view" aria-labelledby="calendarTitle">
+        <div class="section-title"><h2 id="calendarTitle">결제 예정</h2></div>
+        <div class="calendar-tabs"><button data-window="month" class="active">이번 달</button><button data-window="7">7일 이내</button><button data-window="30">30일 이내</button><button data-window="overdue">지남</button></div>
+        <div id="calendarList" class="card-list"></div>
+      </section>
+
+      <section id="savings" class="view" aria-labelledby="savingsTitle">
+        <div class="section-title"><h2 id="savingsTitle">절약 시뮬레이터</h2></div>
+        <div class="summary-grid compact" id="savingsSummary"></div>
+        <div class="quick-actions panel"><button data-select="unused">미사용 선택</button><button data-select="low">낮은 만족도 선택</button><button data-select="nonessential">비필수 선택</button><button data-select="clear">선택 해제</button></div>
+        <div id="savingsList" class="card-list"></div>
+        <button id="cancelSelectedBtn" class="danger full" type="button">선택 항목 해지 처리</button>
+      </section>
+
+      <section id="settings" class="view" aria-labelledby="settingsTitle">
+        <div class="section-title"><h2 id="settingsTitle">설정</h2></div>
+        <div class="settings-grid">
+          <article class="panel"><h3>화면</h3><label class="switch-row">다크 모드 <input id="darkModeToggle" type="checkbox"></label></article>
+          <article class="panel"><h3>통화</h3><label>통화 선택<select id="currencySelect"><option>KRW</option><option>USD</option><option>JPY</option><option>EUR</option></select></label></article>
+          <article class="panel"><h3>데이터</h3><div class="stack"><button id="exportBtn">JSON 내보내기</button><label class="file-button">JSON 가져오기<input id="importInput" type="file" accept="application/json,.json"></label><button class="secondary sample-empty-btn">샘플 데이터 추가</button><button id="resetBtn" class="danger">모든 데이터 초기화</button></div></article>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="주요 메뉴">
+      <button data-view="dashboard" class="active">🏠<span>대시보드</span></button><button data-view="expenses">💳<span>목록</span></button><button data-view="calendar">📅<span>예정</span></button><button data-view="savings">💡<span>절약</span></button><button data-view="settings">⚙️<span>설정</span></button>
+    </nav>
+  </div>
+
+  <dialog id="expenseDialog"><form id="expenseForm" method="dialog"><div class="modal-head"><h2 id="formTitle">고정비 추가</h2><button type="button" class="ghost close-dialog">✕</button></div><input type="hidden" id="expenseId"><div class="form-grid">
+    <label>이름 *<input id="name" required placeholder="예: Netflix"></label><label>금액 *<input id="amount" required type="number" min="1" step="0.01" placeholder="12000"></label>
+    <label>청구 주기<select id="billingCycle"></select></label><label id="customCycleWrap" class="hidden">사용자 지정 개월 수<input id="customCycleMonths" type="number" min="1" step="1" value="1"></label>
+    <label>카테고리<select id="category"></select></label><label>결제일<input id="paymentDay" type="number" min="1" max="31" value="1"></label>
+    <label>시작일<input id="startDate" type="date"></label><label>상태<select id="status"><option value="active">활성</option><option value="paused">일시정지</option><option value="canceled">해지</option></select></label>
+    <label>사용 수준<select id="usageLevel"><option value="high">높음</option><option value="medium">보통</option><option value="low">낮음</option><option value="unused">미사용</option></select></label><label>만족도<select id="satisfaction"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></label>
+    <label class="switch-row wide">필수 지출 <input id="isEssential" type="checkbox"></label><label class="wide">메모<textarea id="memo" rows="3" placeholder="계정, 혜택, 해지 이유 등을 적어두세요"></textarea></label>
+  </div><menu><button type="button" class="secondary close-dialog">취소</button><button class="primary" value="default">저장</button></menu></form></dialog>
+  <dialog id="confirmDialog"><div class="modal-head"><h2 id="confirmTitle">확인</h2></div><p id="confirmMessage"></p><menu><button id="confirmCancel" class="secondary">취소</button><button id="confirmOk" class="danger">확인</button></menu></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
